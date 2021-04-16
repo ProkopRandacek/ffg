@@ -15,7 +15,7 @@ class Server(BaseHTTPRequestHandler):
             self.send_response(400)
             self.end_headers()
             return
-        item, amount = self.path[1:].split(":")
+        item, amount = self.path[8:].split(":")
         if item not in recipes.keys():
             print(f"{item} not in recipes")
             self.send_response(400)
