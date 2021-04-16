@@ -4,7 +4,6 @@ from pprint import pprint
 bp = "0eNpFjlsOgjAQRfcy34VIKaLdijGGx0SbwJS0A0pI924LiX7OzT3nzgbtMOPkDDHoDUxnyYO+beDNk5ohZbxOCBoW43iOiQBqxhQcjay3DEGAoR4/oItwF4DEhg0eov1YHzSPLbpY+PFva3ukrHuh52idrI+QpTQZRdlF5pWANRKFyquQvIZxjOD/YwELOr9D8lKo+irr8qzUqZQhfAGtj0cm"
 emptyBP = json.loads(zlib.decompress(base64.b64decode(bp[1:])).decode("utf8"))
 emptyBP["blueprint"]["entities"] = []
-# print(emptyBP)
 
 
 class BP:
@@ -39,7 +38,6 @@ class BP:
             self.bp["blueprint"]["entities"][-1]["direction"] = direction
         if type != "":
             self.bp["blueprint"]["entities"][-1]["type"] = type
-        # print(self.bp["blueprint"]["entities"][-1])
         self.entityNumber += 1
 
 

@@ -1,7 +1,7 @@
 import json
 
-recipes = {}
-rTimes = {}
+recipes = {}  # recipes
+rTimes = {}  # craft times
 
 # parse recipes
 for d in json.loads(open("recipe.json", "r").read()):
@@ -10,6 +10,7 @@ for d in json.loads(open("recipe.json", "r").read()):
     recipes[d["name"]] = []
     for i in d["ingredients"]:
         if isinstance(i, dict):
+            continue
             recipes[d["name"]] += [[i["name"], i["amount"]]]
         else:
             recipes[d["name"]] += [i]
