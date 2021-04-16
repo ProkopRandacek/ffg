@@ -1,5 +1,5 @@
 from blueprint import BP
-from recipe import recipes, rTimes
+from recipe import recipes, rTimes, fluids
 from math import ceil
 
 ignore = ["stone-brick", "steel-plate", "iron-plate", "copper-plate"]
@@ -64,7 +64,7 @@ def ratioCalc(da, r):
 
 
 def buildBP(r, y=0, n=0, px=0, space=""):
-    global found3Ingr, x  # x is global, no matter how deep down
+    global found3Ingr, foundFluid, x  # x is global, no matter how deep down
     myx = x
     if r[0] in recipes.keys():  # only if there is a recipe for this item
         x += 11  # move to the left
@@ -80,6 +80,8 @@ def buildBP(r, y=0, n=0, px=0, space=""):
         for i in recipes[r[0]]:  # loop over all ingredients for this recipe
             if i[0] in ignore:
                 continue
+            if i[0] in fluids:
+                foundFluid = True
             buildBP([i[0], r[1] * i[1]], y + 3, n=nn, px=myx, space="  " + space)
             nn += 1
 
@@ -111,4 +113,4 @@ def GenBP(item, ips):
 
 
 if __name__ == "__main__":
-    print("\n".join(GenBP("military-science-pack"), 1))
+    print("\n".join(GenBP("military-science-pack", 1)))
