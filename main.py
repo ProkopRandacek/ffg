@@ -3,13 +3,14 @@ from recipe import recipes, rTimes
 from math import ceil
 
 ignore = ["stone-brick", "steel-plate", "iron-plate", "copper-plate"]
-bp = None
+bp = BP()
 x = 0
 foundFluid = False
 found3Ingr = ""
 
 
 def placeAssemblerUnit(x, y, recipe):
+    global bp
     bp.addEntity("assembling-machine-3", x, y, recipe=recipe)
     bp.addEntity("stack-inserter", x - 2, y - 1, direction=6)
     bp.addEntity("stack-inserter", x + 2, y - 0, direction=6)
@@ -26,6 +27,7 @@ def placeAssemblerUnit(x, y, recipe):
 
 
 def placeBusLink(x, y, n):
+    global bp
     for i in range(3):  # the input lines with the curve
         for j in range(5):
             if i + j < 6:
@@ -50,15 +52,13 @@ def placeBusLink(x, y, n):
 
 
 def placeBusLine(x, y, n, l):
+    global bp
     if l < 11:
         return
     for i in range(1, l - 8):
         bp.addEntity("express-transport-belt", x + 3 + i, y - n - 7, direction=3)
 
 
-# calculates how many assemblers are needed
-# da - desired amount of items per second
-# r  - recipe name
 def ratioCalc(da, r):
     return ceil(rTimes[r] * da / 1.25)
 
@@ -85,8 +85,13 @@ def buildBP(r, y=0, n=0, px=0, space=""):
 
 
 def GenBP(item, ips):
-    global bp
-    bp = BP()
+    global bp, x, foundFluid, found3Ingr
+    # reset stuff
+    x = 0
+    foundFluid = False
+    found3Ingr = ""
+    bp.reset()
+
     buildBP([item, ips])
     errorMsg = ""
     if item not in recipes.keys():

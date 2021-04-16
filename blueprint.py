@@ -1,5 +1,6 @@
 import base64, json, zlib
 from pprint import pprint
+from copy import deepcopy
 
 bp = "0eNpFjlsOgjAQRfcy34VIKaLdijGGx0SbwJS0A0pI924LiX7OzT3nzgbtMOPkDDHoDUxnyYO+beDNk5ohZbxOCBoW43iOiQBqxhQcjay3DEGAoR4/oItwF4DEhg0eov1YHzSPLbpY+PFva3ukrHuh52idrI+QpTQZRdlF5pWANRKFyquQvIZxjOD/YwELOr9D8lKo+irr8qzUqZQhfAGtj0cm"
 emptyBP = json.loads(zlib.decompress(base64.b64decode(bp[1:])).decode("utf8"))
@@ -11,8 +12,12 @@ class BP:
     entityNumber = 1
 
     def __init__(self):
-        self.bp = emptyBP
+        self.bp = deepcopy(emptyBP)
         self.entityNumber = 1
+
+    def reset(self):
+        self.entityNumber = 1
+        self.bp = deepcopy(emptyBP)
 
     def importFromString(self, bpString):
         self.bp = json.loads(
