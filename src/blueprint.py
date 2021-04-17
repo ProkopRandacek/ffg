@@ -1,4 +1,5 @@
 import base64, json, zlib
+from recipe import fluids
 from pprint import pprint
 from copy import deepcopy
 
@@ -46,7 +47,14 @@ class BP:
         if ccitem != "":  # create constant combinator with one item in it
             self.bp["blueprint"]["entities"][-1]["control_behavior"] = {
                 "filters": [
-                    {"count": 1, "index": 1, "signal": {"name": ccitem, "type": "item"}}
+                    {
+                        "count": 1,
+                        "index": 1,
+                        "signal": {
+                            "name": ccitem,
+                            "type": "fluid" if ccitem in fluids else "item",
+                        },
+                    }
                 ]
             }
         self.entityNumber += 1
@@ -55,6 +63,6 @@ class BP:
 if __name__ == "__main__":
     bp = BP()
     bp.importFromString(
-        "0eNqNkEtuwzAMRO8yazmoP6lTXaUoAtlhWwIyZch0UMPQ3SvFm6yKLknMvOFwx+BXmiOLwu7gMcgC+75j4S9xvux0mwkWrDTBQNxUpqJTJ1qNYRpYnIaIZMByox/YOn0YkCgr04F7DNtV1mmgmAV/ggzmsGRvkJKfedWlO50NNti+PZ1zzo0jjYegMYWhMfjrQN/uzhmQXZ/sleK/unAMUs3eKZUKY1jLL+rnMqn0eZjs078M7jnhOOJSd/1b07evXffSNin9AmTLcyo="
+        "0eNp9kNFOwzAMRf/FzwHRrrAtv4LQlKQeWEqdKnUmqir/jrM+sBd4i2Pfe328gY8F50wsYDegkHgB+77BQp/sYvuTdUawQIITGGA3tarNiWN5CmnyxE5ShmqAeMRvsF39MIAsJIS73b1YL1wmj1kH/jUyMKdFtYlbvvqdn18NrCo76UtjRsoY9n5vmoXkFC8ev9yNVK+iK0XB/AfKNRYaf1li8ZmC7tAIQirtFN0jS204d377cC4DN03Ylzh1w/HcHw9vw/By6Gv9AR5jczA="
     )
     pprint(bp.bp["blueprint"]["entities"])

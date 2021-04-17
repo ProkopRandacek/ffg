@@ -2,7 +2,17 @@ import json
 
 recipes = {}  # recipes
 rTimes = {}  # craft times
-fluids = []
+needFluid = []
+fluids = [
+    "water",
+    "steam",
+    "sulfuric-acid",
+    "crude-oil",
+    "heavy-oil",
+    "light-oil",
+    "petroleum-gas",
+    "lubricant",
+]
 
 # parse recipes
 for d in json.loads(open("recipe.json", "r").read()):
@@ -11,7 +21,7 @@ for d in json.loads(open("recipe.json", "r").read()):
     recipes[d["name"]] = []
     for i in d["ingredients"]:
         if isinstance(i, dict):
-            fluids.append(d["name"])
+            needFluid.append(d["name"])
             recipes[d["name"]] += [[i["name"], i["amount"]]]
         else:
             recipes[d["name"]] += [i]
