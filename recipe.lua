@@ -1,8 +1,22 @@
+#!/usr/bin/lua
 luna = require 'lunajson'
 
-local data =
--- copy from factorio......
+-- fake data object for the recipe file
+data = {table}
+-- with fake extend function
+function data:extend(table)
+	self.table = table
+end
 
-local json = luna.encode(data)
+-- run the recipes file from factorio. It writes to the data object
+require("factorio-data.base.prototypes.recipe")
 
-print(json)
+-- encode it into a json
+local json = luna.encode(data.table)
+
+-- write that json into a file
+file = io.open("recipe.json", "w+")
+io.output(file)
+io.write(json)
+io.close(file)
+

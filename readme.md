@@ -5,8 +5,10 @@ It's a working prototype now ^^
 `./cli.py military-science-pack 0.7`  
 Factory that produces 0.7 military science packs per second
 
+## DONE:
+- [Web UI](https://randacek.dev/s/f/ffglive)
+
 ## TODO:
-- Web UI
 - Fluids
 - Modules
 - Beacons
