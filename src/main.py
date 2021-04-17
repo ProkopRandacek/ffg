@@ -4,23 +4,35 @@ from math import ceil
 
 # settings
 ignore = ["stone-brick", "steel-plate", "iron-plate", "copper-plate", "coal"]
-gap = 4
-beltType = "express-"
+gap = 5  # min 2
+beltType = "express-"  # "" or "fast-" or "express-"
+assembler = "assembling-machine-3"
+inserter = "stack-inserter"
+longInserter = "long-handed-inserter"
+useBeacon = True  # gap min 3
+assemblerMod = "speed-module-3"
+assemblerModNum = 4
+module = "speed-module"
+craftSpeed = 1.25  # The craft speed of the assembler including the modules and beacons
+# end of settings
+
 belt = beltType + "transport-belt"
 underBelt = beltType + "underground-belt"
-assembler = "assembling-machine-2"
-inserter = "fast-inserter"
-longInserter = "long-handed-inserter"
-
-# internal
 bp = BP()
 x = 0
 foundFluid = False
 found6Ingr = ""
 
 
-def placeAssemblerUnit(x, y, recipe):
-    bp.addEntity(assembler, x, y, recipe=recipe)
+def placeAssemblerUnit(x, y, r):
+    bp.addEntity(
+        assembler,
+        x,
+        y,
+        recipe=r,
+        mod=assemblerMod,
+        mnum=assemblerModNum,
+    )
     bp.addEntity(inserter, x - 2, y - 1, direction=6)
     bp.addEntity(inserter, x + 2, y - 0, direction=6)
     bp.addEntity(longInserter, x - 2, y - 0, direction=6)
@@ -33,6 +45,16 @@ def placeAssemblerUnit(x, y, recipe):
         bp.addEntity(belt, x + 3, y - 1 + i, direction=0)
     bp.addEntity(underBelt, x - 3, y - 1, direction=4, type="output")
     bp.addEntity(underBelt, x - 3, y + 0, direction=4, type="input")
+
+    if useBeacon:
+        bp.addEntity("beacon", x + 5, y - 4, mod=module, mnum=2)
+
+
+def placeBeaconEnd(x, y):
+    if useBeacon:
+        bp.addEntity("beacon", x + 5, y - 1, mod=module, mnum=2)
+        bp.addEntity("beacon", x + 5, y + 2, mod=module, mnum=2)
+        bp.addEntity("beacon", x + 5, y + 5, mod=module, mnum=2)
 
 
 def placeBusLink(x, y, n):
@@ -93,8 +115,13 @@ def placeManualInput(x, y, n, r, wasLastManual):
     )
 
 
+def placeSubstation(x, y):
+    global lastSub
+    bp.addEntity("substation", x, y)
+
+
 def ratioCalc(da, r):
-    return ceil(rTimes[r] * da / 1.25)
+    return ceil(rTimes[r] * da / craftSpeed)
 
 
 def buildBP(r, y=0, n=0, px=0, space=""):
@@ -104,8 +131,12 @@ def buildBP(r, y=0, n=0, px=0, space=""):
         x += 9 + gap  # move to the left
         placeBusLink(-x, y, n)  # place entities into the blueprint
         placeBusLine(-x, y, n, myx - px)
-        for i in range(ratioCalc(r[1], r[0])):
+        assemblerNum = ratioCalc(r[1], r[0])
+        for i in range(assemblerNum):
             placeAssemblerUnit(-x, y + i * 3, r[0])
+        placeBeaconEnd(-x, y + (assemblerNum - 1) * 3)
+        for i in range(int(ceil(assemblerNum * 3 / 18))):
+            placeSubstation(-x - 6, y + i * 18)
         # print(space + r[0], "\t -", ratioCalc(r[1], r[0]), x, y, n, myx - px)
         nn = 0
         if len(recipes[r[0]]) > 6:

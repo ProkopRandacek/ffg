@@ -8,9 +8,9 @@ Factory that produces 0.7 military science packs per second
 ## DONE:
 - [Web UI](https://randacek.dev/s/f/ffglive)
 - Up to 6 ingredients recipes
-
-## TODO:
-- Fluids
 - Modules
 - Beacons
 - Substations
+
+## TODO:
+- Fluids
