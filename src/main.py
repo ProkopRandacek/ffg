@@ -2,28 +2,37 @@ from blueprint import BP
 from recipe import recipes, rTimes, needFluid, fluids
 from math import ceil
 
+# settings
 ignore = ["stone-brick", "steel-plate", "iron-plate", "copper-plate", "coal"]
+gap = 4
+beltType = "express-"
+belt = beltType + "transport-belt"
+underBelt = beltType + "underground-belt"
+assembler = "assembling-machine-2"
+inserter = "fast-inserter"
+longInserter = "long-handed-inserter"
+
+# internal
 bp = BP()
 x = 0
 foundFluid = False
 found6Ingr = ""
-gap = 4
 
 
 def placeAssemblerUnit(x, y, recipe):
-    bp.addEntity("assembling-machine-3", x, y, recipe=recipe)
-    bp.addEntity("stack-inserter", x - 2, y - 1, direction=6)
-    bp.addEntity("stack-inserter", x + 2, y - 0, direction=6)
-    bp.addEntity("long-handed-inserter", x - 2, y - 0, direction=6)
-    bp.addEntity("long-handed-inserter", x - 2, y + 1, direction=6)
-    bp.addEntity("long-handed-inserter", x - 3, y + 1, direction=6)
+    bp.addEntity(assembler, x, y, recipe=recipe)
+    bp.addEntity(inserter, x - 2, y - 1, direction=6)
+    bp.addEntity(inserter, x + 2, y - 0, direction=6)
+    bp.addEntity(longInserter, x - 2, y - 0, direction=6)
+    bp.addEntity(longInserter, x - 2, y + 1, direction=6)
+    bp.addEntity(longInserter, x - 3, y + 1, direction=6)
     for i in range(2):  # outer two input lines
         for j in range(3):
-            bp.addEntity("express-transport-belt", x - 5 + i, y - 1 + j, direction=4)
+            bp.addEntity(belt, x - 5 + i, y - 1 + j, direction=4)
     for i in range(3):  # output line
-        bp.addEntity("express-transport-belt", x + 3, y - 1 + i, direction=0)
-    bp.addEntity("express-underground-belt", x - 3, y - 1, direction=4, type="output")
-    bp.addEntity("express-underground-belt", x - 3, y + 0, direction=4, type="input")
+        bp.addEntity(belt, x + 3, y - 1 + i, direction=0)
+    bp.addEntity(underBelt, x - 3, y - 1, direction=4, type="output")
+    bp.addEntity(underBelt, x - 3, y + 0, direction=4, type="input")
 
 
 def placeBusLink(x, y, n):
@@ -31,7 +40,7 @@ def placeBusLink(x, y, n):
         for j in range(5):
             if i + j < 6:
                 bp.addEntity(
-                    "express-transport-belt",
+                    belt,
                     x - 5 + i,
                     y - 6 + j,
                     direction=4 if i + j > 1 else 3,
@@ -39,7 +48,7 @@ def placeBusLink(x, y, n):
                 )
             else:  # there is that one underground input at the start
                 bp.addEntity(
-                    "express-underground-belt",
+                    underBelt,
                     x - 5 + i,
                     y - 6 + j,
                     direction=4,
@@ -48,21 +57,21 @@ def placeBusLink(x, y, n):
     if n in [0, 2, 4]:  # the output line link
         n = int(n / 2)
         for i in range(2, n + 7):
-            bp.addEntity("express-transport-belt", x + 3, y - i, direction=0)
-        bp.addEntity("express-transport-belt", x + 3, y - n - 7, direction=3)
-        bp.addEntity("express-transport-belt", x + 2, y - n - 7, direction=3)
+            bp.addEntity(belt, x + 3, y - i, direction=0)
+        bp.addEntity(belt, x + 3, y - n - 7, direction=3)
+        bp.addEntity(belt, x + 2, y - n - 7, direction=3)
     else:
         for i in range(2, n + 3):
-            bp.addEntity("express-transport-belt", x + 3, y - i, direction=0)
-        bp.addEntity("express-transport-belt", x + 2, y - n - 3, direction=1)
-        bp.addEntity("express-transport-belt", x + 2, y - n - 4, direction=1)
-        bp.addEntity("express-transport-belt", x + 2, y - n - 5, direction=2)
+            bp.addEntity(belt, x + 3, y - i, direction=0)
+        bp.addEntity(belt, x + 2, y - n - 3, direction=1)
+        bp.addEntity(belt, x + 2, y - n - 4, direction=1)
+        bp.addEntity(belt, x + 2, y - n - 5, direction=2)
 
-        bp.addEntity("express-transport-belt", x + 3, y - n - 4, direction=1)
-        bp.addEntity("express-transport-belt", x + 3, y - n - 5, direction=1)
-        bp.addEntity("express-transport-belt", x + 3, y - n - 6, direction=2)
+        bp.addEntity(belt, x + 3, y - n - 4, direction=1)
+        bp.addEntity(belt, x + 3, y - n - 5, direction=1)
+        bp.addEntity(belt, x + 3, y - n - 6, direction=2)
 
-        bp.addEntity("express-transport-belt", x + 3, y - n - 3, direction=6)
+        bp.addEntity(belt, x + 3, y - n - 3, direction=6)
 
 
 def placeBusLine(x, y, n, l):
@@ -71,7 +80,7 @@ def placeBusLine(x, y, n, l):
     n = int(n / 2)
 
     for i in range(0, l - 9):
-        bp.addEntity("express-transport-belt", x + 4 + i, y - n - 7, direction=3)
+        bp.addEntity(belt, x + 4 + i, y - n - 7, direction=3)
 
 
 def placeManualInput(x, y, n, r, wasLastManual):
