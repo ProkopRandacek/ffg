@@ -2,7 +2,7 @@ from blueprint import BP
 from recipe import recipes, rTimes, fluids
 from math import ceil
 
-ignore = ["stone-brick", "steel-plate", "iron-plate", "copper-plate"]
+ignore = ["stone-brick", "steel-plate", "iron-plate", "copper-plate", "coal"]
 bp = BP()
 x = 0
 foundFluid = False
@@ -59,6 +59,10 @@ def placeBusLine(x, y, n, l):
         bp.addEntity("express-transport-belt", x + 3 + i, y - n - 7, direction=3)
 
 
+def placeManualInput(x, y, n, r):
+    bp.addEntity("constant-combinator", x - 6, y - 4 - n, direction=2, ccitem=r)
+
+
 def ratioCalc(da, r):
     return ceil(rTimes[r] * da / 1.25)
 
@@ -79,10 +83,12 @@ def buildBP(r, y=0, n=0, px=0, space=""):
             return
         for i in recipes[r[0]]:  # loop over all ingredients for this recipe
             if i[0] in ignore:
-                continue
-            if i[0] in fluids:
+                print("manual input", i[0], myx + 11, y, myx - px)
+                placeManualInput(-(myx + 11), y, nn, i[0])
+            elif i[0] in fluids:
                 foundFluid = True
-            buildBP([i[0], r[1] * i[1]], y + 3, n=nn, px=myx, space="  " + space)
+            else:
+                buildBP([i[0], r[1] * i[1]], y + 3, n=nn, px=myx, space="  " + space)
             nn += 1
 
 

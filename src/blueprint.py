@@ -29,7 +29,7 @@ class BP:
             zlib.compress(bytes(json.dumps(self.bp), "utf8"))
         ).decode("utf8")
 
-    def addEntity(self, name, x, y, recipe="", direction="", type=""):
+    def addEntity(self, name, x, y, recipe="", direction="", type="", ccitem=""):
         self.bp["blueprint"]["entities"].append(
             {
                 "entity_number": self.entityNumber,
@@ -43,12 +43,18 @@ class BP:
             self.bp["blueprint"]["entities"][-1]["direction"] = direction
         if type != "":
             self.bp["blueprint"]["entities"][-1]["type"] = type
+        if ccitem != "":  # create constant combinator with one item in it
+            self.bp["blueprint"]["entities"][-1]["control_behavior"] = {
+                "filters": [
+                    {"count": 1, "index": 1, "signal": {"name": ccitem, "type": "item"}}
+                ]
+            }
         self.entityNumber += 1
 
 
 if __name__ == "__main__":
     bp = BP()
     bp.importFromString(
-        "0eNqlkN0KgkAQRt/lu95EN83aV4kIrUEWdHbZn0jEd2+1LoQuuuhq+IbhnJmZ0PaRrNMcoCbom2EPdZ7gdcdNv/TCaAkKOtAAAW6GJdHTOvJ+F/lOrnMm1V1LfcAsoFPvCVXMFwHioIOmN3MN45Xj0JJLA79pAtb4BDC8bJKgssoqgRHqlFVJ9dnNxGDj4v5yyH8cRb6VaF4d6aj1FWrzOYEHOb8S5LEo65Os94eyzPdynl+ZZHaO"
+        "0eNqNkEtuwzAMRO8yazmoP6lTXaUoAtlhWwIyZch0UMPQ3SvFm6yKLknMvOFwx+BXmiOLwu7gMcgC+75j4S9xvux0mwkWrDTBQNxUpqJTJ1qNYRpYnIaIZMByox/YOn0YkCgr04F7DNtV1mmgmAV/ggzmsGRvkJKfedWlO50NNti+PZ1zzo0jjYegMYWhMfjrQN/uzhmQXZ/sleK/unAMUs3eKZUKY1jLL+rnMqn0eZjs078M7jnhOOJSd/1b07evXffSNin9AmTLcyo="
     )
-    pprint(bp.bp)
+    pprint(bp.bp["blueprint"]["entities"])
