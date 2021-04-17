@@ -6,7 +6,7 @@ ignore = ["stone-brick", "steel-plate", "iron-plate", "copper-plate", "coal"]
 bp = BP()
 x = 0
 foundFluid = False
-found3Ingr = ""
+found6Ingr = ""
 
 
 def placeAssemblerUnit(x, y, recipe):
@@ -93,7 +93,7 @@ def ratioCalc(da, r):
 
 
 def buildBP(r, y=0, n=0, px=0, space=""):
-    global found3Ingr, foundFluid, x  # x is global, no matter how deep down
+    global found6Ingr, foundFluid, x  # x is global, no matter how deep down
     myx = x
     if r[0] in recipes.keys():  # only if there is a recipe for this item
         x += 11  # move to the left
@@ -104,7 +104,7 @@ def buildBP(r, y=0, n=0, px=0, space=""):
         # print(space + r[0], "\t -", ratioCalc(r[1], r[0]), x, y, n, myx - px)
         nn = 0
         if len(recipes[r[0]]) > 6:
-            found3Ingr = r[0]  # 3 ingredients are not supported yet
+            found6Ingr = r[0]  # 3 ingredients are not supported yet
             return
         manual = []
         for i in recipes[r[0]]:  # loop over all ingredients for this recipe
@@ -124,11 +124,11 @@ def buildBP(r, y=0, n=0, px=0, space=""):
 
 
 def GenBP(item, ips):
-    global bp, x, foundFluid, found3Ingr
+    global bp, x, foundFluid, found6Ingr
     # reset stuff
     x = 0
     foundFluid = False
-    found3Ingr = ""
+    found6Ingr = ""
     bp.reset()
 
     buildBP([item, ips])
@@ -139,10 +139,10 @@ def GenBP(item, ips):
     if foundFluid:
         errorMsg += "I found a recipe with fluid. Those are not yet supported.\n"
         errorMsg += "I created the factory anyway"
-    if found3Ingr != "":
-        errorMsg += "I found a recipe with more than 3 ingredients.\n"
-        errorMsg += "I can't create a Blueprint for those yet :(\n"
-        errorMsg += "recipe with more than 3 ingredients: " + found3Ingr
+    if found6Ingr != "":
+        errorMsg += "I found a recipe with more than 6 ingredients.\n"
+        errorMsg += "I can't create a factory for those yet :(\n"
+        errorMsg += "recipe with more than 6 ingredients: " + found6Ingr
 
     return [bp.export(), errorMsg]
 
