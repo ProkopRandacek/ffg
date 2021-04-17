@@ -7,10 +7,10 @@ bp = BP()
 x = 0
 foundFluid = False
 found6Ingr = ""
+gap = 4
 
 
 def placeAssemblerUnit(x, y, recipe):
-    global bp
     bp.addEntity("assembling-machine-3", x, y, recipe=recipe)
     bp.addEntity("stack-inserter", x - 2, y - 1, direction=6)
     bp.addEntity("stack-inserter", x + 2, y - 0, direction=6)
@@ -27,7 +27,6 @@ def placeAssemblerUnit(x, y, recipe):
 
 
 def placeBusLink(x, y, n):
-    global bp
     for i in range(3):  # the input lines with the curve
         for j in range(5):
             if i + j < 6:
@@ -67,21 +66,18 @@ def placeBusLink(x, y, n):
 
 
 def placeBusLine(x, y, n, l):
-    global bp
-    if l < 11:
-        return
     if n in [1, 3, 5]:
-        l -= 4
+        l -= gap + 2
     n = int(n / 2)
 
-    for i in range(1, l - 8):
-        bp.addEntity("express-transport-belt", x + 3 + i, y - n - 7, direction=3)
+    for i in range(0, l - 9):
+        bp.addEntity("express-transport-belt", x + 4 + i, y - n - 7, direction=3)
 
 
 def placeManualInput(x, y, n, r, wasLastManual):
     bp.addEntity(
         "constant-combinator",
-        x - (6 if n in [0, 2, 4] else (7 if wasLastManual else 10)),
+        x - (4 if n in [0, 2, 4] else (5 if wasLastManual else 6 + gap)) - gap,
         y - 4 - int(n / 2),
         direction=2,
         ccitem=r,
@@ -96,7 +92,7 @@ def buildBP(r, y=0, n=0, px=0, space=""):
     global found6Ingr, foundFluid, x  # x is global, no matter how deep down
     myx = x
     if r[0] in recipes.keys():  # only if there is a recipe for this item
-        x += 11  # move to the left
+        x += 9 + gap  # move to the left
         placeBusLink(-x, y, n)  # place entities into the blueprint
         placeBusLine(-x, y, n, myx - px)
         for i in range(ratioCalc(r[1], r[0])):
