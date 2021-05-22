@@ -25,11 +25,11 @@ def buildBP(r, y=0, n=0, px=0, space=""):
         for i in range(assemblerNum):
             placeAssemblerUnit(-x, y + i * 3, r[0])  # place assemblers
         placeBeaconEnd(-x, y + (assemblerNum - 1) * 3)  # place beacons
-        numberOfSubstations = int(ceil(assemblerNum * 3 / 18))
+        numberOfSubstations = int(ceil(assemblerNum * 3 / 18)) + 1
         for i in range(numberOfSubstations):
             placeSubstation(-x - 6, y + i * 18)  # place substations
             if useBeacon and i >= lastNumberOfSubstations:
-                placeSubstation(-x + 8, y + i * 18)  # place substations
+                placeSubstation(-x + 8, y + i * 18 - 3)  # place substations
 
         lastNumberOfSubstations = numberOfSubstations
 
