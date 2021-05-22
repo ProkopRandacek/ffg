@@ -1,4 +1,6 @@
-import base64, json, zlib
+import base64
+import json
+import zlib
 from recipe import fluids
 from pprint import pprint
 from copy import deepcopy
