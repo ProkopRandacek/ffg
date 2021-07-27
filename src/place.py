@@ -9,8 +9,7 @@ bp = BP()
 def placeAssemblerUnit(x, y, r):
     bp.addEntity(
         assembler,
-        x,
-        y,
+        x, y,
         recipe=r,
         mod=assemblerMod,
         mnum=assemblerModNum,
@@ -39,32 +38,34 @@ def placeBeaconEnd(x, y):
 
 
 def placeBusLink(x, y, n):
-    for i in range(3):  # the input lines with the curve
-        for j in range(5): # TODO: write without a loop bcs this is unreadable
-            if i + j < 6:
-                bp.addEntity(
-                    belt,
-                    x - 5 + i,
-                    y - 6 + j,
-                    direction=4 if i + j > 1 else 3,
-                    # this curves the belts from the bus
-                )
-            else:  # there is that one underground input at the start
-                bp.addEntity(
-                    underBelt,
-                    x - 5 + i,
-                    y - 6 + j,
-                    direction=4,
-                    type="input",
-                )
+    bp.addEntity(belt, x - 5, y - 6, direction=3)
+    bp.addEntity(belt, x - 4, y - 6, direction=3)
+    bp.addEntity(belt, x - 3, y - 6, direction=4)
+
+    bp.addEntity(belt, x - 5, y - 5, direction=3)
+    bp.addEntity(belt, x - 4, y - 5, direction=4)
+    bp.addEntity(belt, x - 3, y - 5, direction=4)
+
+    bp.addEntity(belt, x - 5, y - 4, direction=4)
+    bp.addEntity(belt, x - 4, y - 4, direction=4)
+    bp.addEntity(belt, x - 3, y - 4, direction=4)
+
+    bp.addEntity(belt, x - 5, y - 3, direction=4)
+    bp.addEntity(belt, x - 4, y - 3, direction=4)
+    bp.addEntity(belt, x - 3, y - 3, direction=4)
+
+    bp.addEntity(belt, x - 5, y - 2, direction=4)
+    bp.addEntity(belt, x - 4, y - 2, direction=4)
+    bp.addEntity(underBelt, x - 3, y - 2, direction=4, type="input")
+
     # the output line link
-    if n in [0, 2, 4]: # the lower line
+    if n in [0, 2, 4]: # to the lower line
         n = int(n / 2)
         for i in range(2, n + 7):
             bp.addEntity(belt, x + 3, y - i, direction=0)
         bp.addEntity(belt, x + 3, y - n - 7, direction=3)
         bp.addEntity(belt, x + 2, y - n - 7, direction=3)
-    else: # the upper line
+    else: # to the upper line
         n = int(n / 2) + 1
         for i in range(2, n + 3):
             bp.addEntity(belt, x + 3, y - i, direction=0)

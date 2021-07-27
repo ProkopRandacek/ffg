@@ -21,7 +21,6 @@ def ratioCalc(da, r):
 # px = upper recursion level x (we need to know how long the bus line needs to be)
 def build(recipe, ips, y=0, n=0, px=0): 
     global lastNumberOfSubstations, x
-    print(" " * y, recipe, ips, end=", ")
     myx = x # my x is given to the lower recursion level
     if recipe in recipes.keys():  # only if there is a recipe for this item
         x += 9 + gap  # move to the left
@@ -34,7 +33,6 @@ def build(recipe, ips, y=0, n=0, px=0):
 
         # === ASSEMBLER ===
         assemblerNum = ratioCalc(ips, recipe)
-        print(ips, rTimes[recipe], assemblerNum)
         for i in range(assemblerNum):
             placeAssemblerUnit(-x, y + i * 3, recipe) # beacons are placed from this function (if enabled)
 
@@ -101,4 +99,4 @@ def GenBP(item, ips):  # ips = items per second
 
 
 if __name__ == "__main__":
-    print(GenBP("military-science-pack", 1))
+    print("Run the cli.py script for cli interface")
