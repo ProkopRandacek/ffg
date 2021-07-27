@@ -15,8 +15,8 @@ def placeAssemblerUnit(x, y, r):
         mod=assemblerMod,
         mnum=assemblerModNum,
     )
-    bp.addEntity(inserter, x - 2, y - 1, direction=6)
-    bp.addEntity(inserter, x + 2, y - 0, direction=6)
+    bp.addEntity(inserter,     x - 2, y - 1, direction=6)
+    bp.addEntity(inserter,     x + 2, y - 0, direction=6)
     bp.addEntity(longInserter, x - 2, y - 0, direction=6)
     bp.addEntity(longInserter, x - 2, y + 1, direction=6)
     bp.addEntity(longInserter, x - 3, y + 1, direction=6)
@@ -33,15 +33,14 @@ def placeAssemblerUnit(x, y, r):
 
 
 def placeBeaconEnd(x, y):
-    if useBeacon:
-        bp.addEntity("beacon", x + 5, y - 1, mod=module, mnum=2)
-        bp.addEntity("beacon", x + 5, y + 2, mod=module, mnum=2)
-        bp.addEntity("beacon", x + 5, y + 5, mod=module, mnum=2)
+    bp.addEntity("beacon", x + 5, y - 1, mod=module, mnum=2)
+    bp.addEntity("beacon", x + 5, y + 2, mod=module, mnum=2)
+    bp.addEntity("beacon", x + 5, y + 5, mod=module, mnum=2)
 
 
 def placeBusLink(x, y, n):
     for i in range(3):  # the input lines with the curve
-        for j in range(5):
+        for j in range(5): # TODO: write without a loop bcs this is unreadable
             if i + j < 6:
                 bp.addEntity(
                     belt,
@@ -58,13 +57,15 @@ def placeBusLink(x, y, n):
                     direction=4,
                     type="input",
                 )
-    if n in [0, 2, 4]:  # the output line link
+    # the output line link
+    if n in [0, 2, 4]: # the lower line
         n = int(n / 2)
         for i in range(2, n + 7):
             bp.addEntity(belt, x + 3, y - i, direction=0)
         bp.addEntity(belt, x + 3, y - n - 7, direction=3)
         bp.addEntity(belt, x + 2, y - n - 7, direction=3)
-    else:
+    else: # the upper line
+        n = int(n / 2) + 1
         for i in range(2, n + 3):
             bp.addEntity(belt, x + 3, y - i, direction=0)
         bp.addEntity(belt, x + 2, y - n - 3, direction=1)
@@ -98,5 +99,4 @@ def placeManualInput(x, y, n, r, wasLastManual):
 
 
 def placeSubstation(x, y):
-    global lastSub
     bp.addEntity("substation", x, y)

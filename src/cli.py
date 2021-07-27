@@ -21,4 +21,5 @@ if __name__ == "__main__":
         except ValueError:
             print(f'Could not convert "{sys.argv[2]}" to float.')
             exit(1)
-        print("\n".join(GenBP(recipe, amount)))
+        bp = GenBP(recipe, amount)
+        print(bp)

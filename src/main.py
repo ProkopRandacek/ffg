@@ -3,81 +3,102 @@ from math import ceil
 from place import *
 from settings import *
 
-x = 0
-foundFluid = False
-found6Ingr = ""
+x = 0 # x needs to be global since it changes with each call
 lastNumberOfSubstations = 0
 
+def die(reason):
+    print("ERROR: " + reason)
+    exit(1)
 
 def ratioCalc(da, r):
     return ceil(rTimes[r] * da / craftSpeed)
 
 
-def buildBP(r, y=0, n=0, px=0, space=""):
-    global found6Ingr, foundFluid, lastNumberOfSubstations, x  # x is global, no matter how deep down
-    myx = x
-    if r[0] in recipes.keys():  # only if there is a recipe for this item
+# recipe
+# ips = items per second that this recipe needs to have
+# y = y offset to build with
+# n = what belt to connect to on the local bus
+# px = upper recursion level x (we need to know how long the bus line needs to be)
+def build(recipe, ips, y=0, n=0, px=0): 
+    global lastNumberOfSubstations, x
+    print(" " * y, recipe, ips, end=", ")
+    myx = x # my x is given to the lower recursion level
+    if recipe in recipes.keys():  # only if there is a recipe for this item
         x += 9 + gap  # move to the left
 
+
+        # === BUS ===
         placeBusLink(-x, y, n)  # Connect to the bus
         placeBusLine(-x, y, n, myx - px)  # Extend the bus line
-        assemblerNum = ratioCalc(r[1], r[0])  # calculate how many assemblers we need
+
+
+        # === ASSEMBLER ===
+        assemblerNum = ratioCalc(ips, recipe)
+        print(ips, rTimes[recipe], assemblerNum)
         for i in range(assemblerNum):
-            placeAssemblerUnit(-x, y + i * 3, r[0])  # place assemblers
-        placeBeaconEnd(-x, y + (assemblerNum - 1) * 3)  # place beacons
+            placeAssemblerUnit(-x, y + i * 3, recipe) # beacons are placed from this function (if enabled)
+
+
+        # === BEACON ===
+        if useBeacon:
+            placeBeaconEnd(-x, y + (assemblerNum - 1) * 3) # place those 3 beacons at the end
+
+
+        # === SUBSTATIONS ===
         numberOfSubstations = int(ceil(assemblerNum * 3 / 18)) + 1
         for i in range(numberOfSubstations):
-            placeSubstation(-x - 6, y + i * 18)  # place substations
+            placeSubstation(-x - 6, y + i * 18)
             if useBeacon and i >= lastNumberOfSubstations:
-                placeSubstation(-x + 8, y + i * 18 - 3)  # place substations
-
+                placeSubstation(-x + 8, y + i * 18 - 3)
         lastNumberOfSubstations = numberOfSubstations
 
-        nn = 0
-        if len(recipes[r[0]]) > 6:
-            found6Ingr = r[0]  # 6 ingredients are not supported yet
-            return
-        manual = []
-        for i in recipes[r[0]]:  # loop over all ingredients for this recipe
-            if i[0] in ignore:
-                manual.append(i[0])  # dont create assemblers for ignored recipes
-            elif i[0] in fluids:  # it needs fluid -> manual and create warning
-                manual.append(i[0])
-                foundFluid = True
-            else:  # it is normal recipe that we can create -> recursive call itself on that recipe
-                buildBP([i[0], r[1] * i[1]], y + 3, n=nn, px=myx, space="  " + space)
-                nn += 1
 
+        # === CREATE INPUTS ===
+        if len(recipes[recipe]) > 6: die("I found a recipe with more than 6 ingredients.")
+
+        inputs = []
+        manual = []  # the manual input belts
+
+        for i in recipes[recipe]:  # loop over all ingredients for this recipe
+            if   i[0] in ignore: manual.append(i[0])
+            elif i[0] in fluids: manual.append(i[0])
+            else:  # it is normal recipe that we can create -> recursive call itself on that recipe
+                requiredIPS = ips * i[1]
+                while requiredIPS > 0:
+                    thisBeltIPS = min(singleLineIPS, requiredIPS)
+                    requiredIPS -= thisBeltIPS
+
+                    inputs.append((i[0], thisBeltIPS))
+
+        # === RECURSIVE CALL ===
+        if (len(manual) + len(inputs)) > 6: die(f"{recipe} requires more ingredients that I can fit on 3 belts.")
+        belt = 0  # what bus line the lower recursion is supposed to connect to
+        for i in sorted(inputs, key=lambda x: x[1]):
+            build(i[0], i[1], y + 3, n=belt, px=myx)
+            belt += 1
+
+        # === CREATE MANUAL INPUT INDICATORS ===
         wasLastManual = False
-        for m in manual:  # manual inputs are connected last
-            placeManualInput(-myx - 11, y, nn, m, wasLastManual)
-            nn += 1
+        for m in manual:
+            placeManualInput(-myx - 11, y, belt, m, wasLastManual)
+            belt += 1
             wasLastManual = True
 
 
 def GenBP(item, ips):  # ips = items per second
-    global bp, x, foundFluid, found6Ingr
-    # reset stuff
+    global bp, x, lastNumberOfSubstations
+    # reset global variables
     x = 0
     lastNumberOfSubstations = 0
-    foundFluid = False
-    found6Ingr = ""
     bp.reset()
 
-    buildBP([item, ips])
+    build(item, ips)
     errorMsg = ""
     if item not in recipes.keys():
         errorMsg += "I couldn't find this recipe, Is it vanilla?\n"
-    if foundFluid:
-        errorMsg += "I found a recipe with fluid. Those are not yet supported.\n"
-        errorMsg += "I created the factory anyway"
-    if found6Ingr != "":
-        errorMsg += "I found a recipe with more than 6 ingredients.\n"
-        errorMsg += "I can't create a factory for those yet :(\n"
-        errorMsg += "recipe with more than 6 ingredients: " + found6Ingr
 
-    return [bp.export(), errorMsg]
+    return bp.export()
 
 
 if __name__ == "__main__":
-    print("\n".join(GenBP("military-science-pack", 1)))
+    print(GenBP("military-science-pack", 1))

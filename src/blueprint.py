@@ -44,11 +44,9 @@ class BP:
                     found.append(e["entity_number"])
         return found
 
-    def addEntity(
-        self,
+    def addEntity( self,
         name,
-        x,
-        y,
+        x, y,
         recipe="",
         direction="",
         type="",
@@ -64,15 +62,11 @@ class BP:
                 "position": {"x": x + o, "y": y + o},
             }
         )
-        if recipe != "":
-            self.bp["blueprint"]["entities"][-1]["recipe"] = recipe
-        if mod != "":
-            self.bp["blueprint"]["entities"][-1]["items"] = {mod: mnum}
-        if direction != "":
-            self.bp["blueprint"]["entities"][-1]["direction"] = direction
-        if type != "":
-            self.bp["blueprint"]["entities"][-1]["type"] = type
-        if ccitem != "":  # create constant combinator with one item in it
+        if recipe    != "": self.bp["blueprint"]["entities"][-1]["recipe"] = recipe
+        if mod       != "": self.bp["blueprint"]["entities"][-1]["items"] = {mod: mnum}
+        if direction != "": self.bp["blueprint"]["entities"][-1]["direction"] = direction
+        if type      != "": self.bp["blueprint"]["entities"][-1]["type"] = type
+        if ccitem    != "": # create constant combinator with one item in it
             self.bp["blueprint"]["entities"][-1]["control_behavior"] = {
                 "filters": [
                     {
