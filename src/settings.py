@@ -4,12 +4,10 @@ def die(reason):
 
 ignore = ["stone-brick", "steel-plate", "iron-plate", "copper-plate", "coal"]
 ignore += ["plastic-bar"]
+
 gap = 0
-
 beltLevel = 2  # 0, 1 or 2
-
 assemblerLevel = 2  # 0, 1 or 2
-
 useBeacon = False # TODO calculate craft time
 
 inserter = "fast-inserter"
@@ -43,4 +41,4 @@ elif beltLevel == 2: beltType, singleLineIPS = "express-", 22.5
 else: die(f"'{beltLevel}' is not a valid value for beltLevel")
 
 gap += 2
-if useBeacon: gap += 3
+if useBeacon: gap += 3 # beacons are 3 wide

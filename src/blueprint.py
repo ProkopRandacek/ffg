@@ -18,19 +18,11 @@ class BP:
         self.bp = deepcopy(emptyBP)
         self.entityNumber = 1
 
-    def reset(self):
-        self.entityNumber = 1
-        self.bp = deepcopy(emptyBP)
-
     def importFromString(self, bpString):
-        self.bp = json.loads(
-            zlib.decompress(base64.b64decode(bpString[1:])).decode("utf8")
-        )
+        self.bp = json.loads(zlib.decompress(base64.b64decode(bpString[1:])).decode("utf8"))
 
     def export(self):
-        return "0" + base64.b64encode(
-            zlib.compress(bytes(json.dumps(self.bp), "utf8"))
-        ).decode("utf8")
+        return "0" + base64.b64encode(zlib.compress(bytes(json.dumps(self.bp), "utf8"))).decode("utf8")
 
     def find(self, name, dist, pos):
         found = []
@@ -44,17 +36,9 @@ class BP:
                     found.append(e["entity_number"])
         return found
 
-    def addEntity( self,
-        name,
-        x, y,
-        recipe="",
-        direction="",
-        type="",
-        ccitem="",
-        mod="",
-        mnum=0,
-    ):
-        o = 0.0 if name in ["substation"] else 0.5
+    def addEntity(self, name, x, y, recipe="", direction="", type="", ccitem="", mod="", mnum=0):
+        o = 0.0 if name in ["substation"] else 0.5  # offset
+
         self.bp["blueprint"]["entities"].append(
             {
                 "entity_number": self.entityNumber,
@@ -79,7 +63,7 @@ class BP:
                     }
                 ]
             }
-        if name in ["substation"]:
+        if name in ["substation"]: # connect wires
             self.bp["blueprint"]["entities"][-1]["neighbours"] = self.find(
                 "substation", 18, [x, y]
             )
@@ -93,3 +77,4 @@ if __name__ == "__main__":
         "0eNqV0MEOgjAMBuB3+c8zgUEA9yqGGKYNNoFC2DASsnd34MWoF29ts35tt8J2M40Ti4dZwZdBHMxpheNWmm6r+WUkGLCnHgrS9FvmZut843kQBAWWKz1g0lArkHj2TC9lT5azzL2lKT741a8wDo73ME6LzKFIFBYYXSTRFuL2Zod52kRdB/Wl6v/UsvpU03pbfD/QvP2Hwp0mtwu6SvPyqMusyPMk0yE8AaRZZwc="
     )
     pprint(bp.bp["blueprint"]["entities"])
+

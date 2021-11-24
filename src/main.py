@@ -1,7 +1,11 @@
-from recipe import recipes, rTimes, needFluid, fluids
+from recipe import recipes, craft_times, need_fluid, fluids
 from math import ceil
-from place import *
+from blueprint import BP
 from settings import *
+
+belt = beltType + "transport-belt"
+underBelt = beltType + "underground-belt"
+bp = BP()
 
 x = 0 # x needs to be global since it changes with each call
 lastNumberOfSubstations = 0
@@ -10,16 +14,109 @@ def die(reason):
     print("ERROR: " + reason)
     exit(1)
 
-def ratioCalc(da, r):
-    return ceil(rTimes[r] * da / craftSpeed)
 
+def ratioCalc(da, r):
+    return ceil(craft_times[r] * da / craftSpeed)
+
+
+def placeAssemblerUnit(x, y, r):
+    bp.addEntity(
+        assembler,
+        x, y,
+        recipe=r,
+        mod=assemblerMod,
+        mnum=assemblerModNum,
+    )
+    bp.addEntity(inserter,     x - 2, y - 1, direction=6)
+    bp.addEntity(inserter,     x + 2, y - 0, direction=6)
+    bp.addEntity(longInserter, x - 2, y - 0, direction=6)
+    bp.addEntity(longInserter, x - 2, y + 1, direction=6)
+    bp.addEntity(longInserter, x - 3, y + 1, direction=6)
+    for i in range(2):  # outer two input lines
+        for j in range(3):
+            bp.addEntity(belt, x - 5 + i, y - 1 + j, direction=4)
+    for i in range(3):  # output line
+        bp.addEntity(belt, x + 3, y - 1 + i, direction=0)
+    bp.addEntity(underBelt, x - 3, y - 1, direction=4, type="output")
+    bp.addEntity(underBelt, x - 3, y + 0, direction=4, type="input")
+
+    if useBeacon:
+        bp.addEntity("beacon", x + 5, y - 4, mod=module, mnum=2)
+
+
+def placeBeaconEnd(x, y):
+    bp.addEntity("beacon", x + 5, y - 1, mod=module, mnum=2)
+    bp.addEntity("beacon", x + 5, y + 2, mod=module, mnum=2)
+    bp.addEntity("beacon", x + 5, y + 5, mod=module, mnum=2)
+
+
+def placeBusLink(x, y, n):
+    bp.addEntity(belt, x - 5, y - 6, direction=3)
+    bp.addEntity(belt, x - 4, y - 6, direction=3)
+    bp.addEntity(belt, x - 3, y - 6, direction=4)
+    bp.addEntity(belt, x - 5, y - 5, direction=3)
+    bp.addEntity(belt, x - 4, y - 5, direction=4)
+    bp.addEntity(belt, x - 3, y - 5, direction=4)
+    bp.addEntity(belt, x - 5, y - 4, direction=4)
+    bp.addEntity(belt, x - 4, y - 4, direction=4)
+    bp.addEntity(belt, x - 3, y - 4, direction=4)
+    bp.addEntity(belt, x - 5, y - 3, direction=4)
+    bp.addEntity(belt, x - 4, y - 3, direction=4)
+    bp.addEntity(belt, x - 3, y - 3, direction=4)
+    bp.addEntity(belt, x - 5, y - 2, direction=4)
+    bp.addEntity(belt, x - 4, y - 2, direction=4)
+    bp.addEntity(underBelt, x - 3, y - 2, direction=4, type="input")
+
+    # the output line link
+    if n in [0, 2, 4]: # to the lower line
+        n = int(n / 2)
+        for i in range(2, n + 7):
+            bp.addEntity(belt, x + 3, y - i, direction=0)
+        bp.addEntity(belt, x + 3, y - n - 7, direction=3)
+        bp.addEntity(belt, x + 2, y - n - 7, direction=3)
+    else: # to the upper line
+        n = int(n / 2) + 1
+        for i in range(2, n + 3):
+            bp.addEntity(belt, x + 3, y - i, direction=0)
+        bp.addEntity(belt, x + 2, y - n - 3, direction=1)
+        bp.addEntity(belt, x + 2, y - n - 4, direction=1)
+        bp.addEntity(belt, x + 2, y - n - 5, direction=2)
+
+        bp.addEntity(belt, x + 3, y - n - 4, direction=1)
+        bp.addEntity(belt, x + 3, y - n - 5, direction=1)
+        bp.addEntity(belt, x + 3, y - n - 6, direction=2)
+
+        bp.addEntity(belt, x + 3, y - n - 3, direction=6)
+
+
+def placeBusLine(x, y, n, l):
+    if n in [1, 3, 5]:
+        l -= gap + 2
+    n = int(n / 2)
+
+    for i in range(0, l - 9):
+        bp.addEntity(belt, x + 4 + i, y - n - 7, direction=3)
+
+
+def placeManualInput(x, y, n, r, wasLastManual):
+    bp.addEntity(
+        "constant-combinator",
+        x - (4 if n in [0, 2, 4] else (5 if wasLastManual else 6 + gap)) - gap,
+        y - 4 - int(n / 2),
+        direction=2,
+        ccitem=r,
+    )
+
+
+def placeSubstation(x, y):
+    bp.addEntity("substation", x, y)
 
 # recipe
 # ips = items per second that this recipe needs to have
 # y = y offset to build with
 # n = what belt to connect to on the local bus
 # px = upper recursion level x (we need to know how long the bus line needs to be)
-def build(recipe, ips, y=0, n=0, px=0): 
+def build(recipe, ips, y=0, n=0, px=0) -> None: 
     global lastNumberOfSubstations, x
     myx = x # my x is given to the lower recursion level
     if recipe in recipes.keys():  # only if there is a recipe for this item
@@ -88,15 +185,13 @@ def GenBP(item, ips):  # ips = items per second
     # reset global variables
     x = 0
     lastNumberOfSubstations = 0
-    bp.reset()
+    bp = BP()
 
     build(item, ips)
-    errorMsg = ""
-    if item not in recipes.keys():
-        errorMsg += "I couldn't find this recipe, Is it vanilla?\n"
 
     return bp.export()
 
 
 if __name__ == "__main__":
     print("Run the cli.py script for cli interface")
+
